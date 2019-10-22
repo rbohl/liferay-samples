@@ -44,19 +44,6 @@ public class JournalArticleAdder {
 
 	public void addArticles() throws PortalException {
 
-		long companyId = PortalUtil.getDefaultCompanyId();
-		long folderId = JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID;
-
-		Group guestGroup = _groupLocalService.getGroup(companyId, GroupConstants.GUEST);
-		long groupId = guestGroup.getGroupId();
-
-		Role adminRole = RoleLocalServiceUtil.getRole(companyId, "Administrator");
-		List<User> adminUsers = UserLocalServiceUtil.getRoleUsers(adminRole.getRoleId());
-		long userId = adminUsers.get(0).getUserId();
-
-		ServiceContext serviceContext = new ServiceContext();
-		serviceContext.setScopeGroupId(groupId);
-
 		String[] titles = _journalArticleConfiguration.titles();
 		String[] contents = _journalArticleConfiguration.contents();
 		String[] descriptions = _journalArticleConfiguration.descriptions();
@@ -67,17 +54,33 @@ public class JournalArticleAdder {
 			return;
 		}
 		
+		long companyId = PortalUtil.getDefaultCompanyId();
+		Group guestGroup = _groupLocalService.getGroup(companyId, GroupConstants.GUEST);
+		long groupId = guestGroup.getGroupId();
+
 		List<JournalArticle> existingArticles = _jals.getArticles(groupId);
 
 		for (JournalArticle existingArticle : existingArticles) {
+
 			String existingTitle = existingArticle.getTitleCurrentValue();
+
 			if (Arrays.asList(titles).contains(existingTitle)) {
+
 				_log.error(
 						"Make sure all JournalArticle titles in the JournalArticleAdder configuration are unique in the site");
 				return;
 			}
 		}
 		
+		long folderId = JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+
+		Role adminRole = RoleLocalServiceUtil.getRole(companyId, "Administrator");
+		List<User> adminUsers = UserLocalServiceUtil.getRoleUsers(adminRole.getRoleId());
+		long userId = adminUsers.get(0).getUserId();
+
+		ServiceContext serviceContext = new ServiceContext();
+		serviceContext.setScopeGroupId(groupId);
+
 		for (int i = 0; i < titles.length; i++) {
 			
 			Map<Locale, String> titleMap = new HashMap<>();
