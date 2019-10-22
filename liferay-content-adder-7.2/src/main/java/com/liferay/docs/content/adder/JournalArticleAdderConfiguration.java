@@ -23,7 +23,7 @@ public interface JournalArticleAdderConfiguration {
 	public String [] contents();
 
 	@Meta.AD
-		(name = "descritption",
+		(name = "descripttion",
 		required = true)
 	public String [] descriptions();
 
