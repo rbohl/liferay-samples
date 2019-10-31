@@ -1,5 +1,32 @@
 # Liferay Samples
+
 These are modules and scripts that I use to explore Liferay's APIs and frameworks. Some contain pedagogical code for use in documentation, some are used to programmatically create content so I can quickly get up and running, populating a new Liferay bundle with demo content.
+
+## Branches
+
+At time of writing, branch management works like this:
+
+`master`: The master branch is intended to run on master. No promises, obviously.
+
+`7.2`: The 7.2 branch contains code that runs on Liferay CE/DXP 7.2. No promises, but if it doesn't work as advertised, I'd be interested in hearing from you.
+
+To build for running on master, this module relies on `mavenLocal()` as a repository for satisfying build dependencies, pointed at a local maven repository where your Liferay artifacts from master can be installed (using `gw install` in the module root (e.g., `liferay-portal/modules/apps/journal`) works for me). 
+
+### On the master branch, I use local dependencies from liferay-portal master
+
+I followed these steps to make Gradle find the portal root's `.m2` folder for dependencies (I don't know if Gradle would have found the .m2 in liferay-portal without this, but maybe it would):
+
+1.  Open `USER_HOME/.m2`
+2.  Add a `settings.xml` file. I copied the contents of `MAVEN_HOME/conf/settings.xml` to get started.
+3.  Add this to `USER_HOME/.m2/settings.xml`: 
+
+    ```xml
+    <localRepository>/path/to/liferay-portal/.m2</localRepository>
+    ```
+
+4.aUse `mavenLocal()` in the definition of `repositories` in `build.gradle`, 
+
+Master relies on the local maven repository, with the proper dependencies installed. 7.2 and other published versions will use published artifacts on Liferay's CDN site to satisfy dependencies.
 
 ## Liferay Content Adder
 
