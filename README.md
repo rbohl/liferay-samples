@@ -16,9 +16,9 @@ A sample configuration article is available in the module's `liferay-content-add
 
 ### Usage
 
-Use gradle (I run gradle through Liferay's Blade CLI tool) to build the JAR. Copy it to `Liferay_Home/deploy`.
+First, copy the `.config` file into `Liferay_Home/osgi/configs`. A configuration listener will simply pick up the config file modification and run the service calls to add Web Content articles.
 
-Copy the `.config` file into `Liferay_Home/osgi/configs`. A configuration listener will simply pick up the config file modification and run the service calls to add Web Content articles.
+Use gradle (I run gradle through Liferay's Blade CLI tool) to build the JAR. Copy it to `Liferay_Home/deploy`.
 
 To add additional articles, you have to at least change the titles in the configuration, then save (either ave the `.config` file or click the _Update_ if you're using the System Settings UI).
 
