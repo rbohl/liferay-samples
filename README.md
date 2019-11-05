@@ -31,3 +31,18 @@ To make everything simple, these decisions are hard-coded into the Liferay Conte
 3.  The first administrator retrieved from the system is always the author of the content.
 4.  The articles are added to ALL sites in the system, so that if you've defined a Lunar Resort site or some other site for demonstration, it will be populated with the articles as well. 
 5.  The default site locale is always used for localization.
+
+### Troubleshooting the Liferay Content Added
+
+**Problem:** The bundle is active but updating the configuration (via .config file or System Settings) does not trigger the Journal Article creation.
+
+_Cause:_ If the module JAR is deployed without a configuration file present, the Configuration class is not activated.
+
+You'll likely see exception in the Liferay log to this effect:
+
+```bash
+2019-11-05 15:50:00.873 ERROR [fileinstall-/home/russell/liferay-bundles/master/osgi/modules][JournalArticleAdder:93] bundle com.liferay.docs.content.adder:1.0.0 (1013)[com.liferay.docs.content.adder.JournalArticleAdder(6785)] : The activate method has thrown an exception 
+java.lang.RuntimeException: Unable to create snapshot class for interface com.liferay.docs.content.adder.JournalArticleAdderConfiguration
+```
+
+_Solution_: Deploy the .config file and Refresh the bundle from Gogo shell.
