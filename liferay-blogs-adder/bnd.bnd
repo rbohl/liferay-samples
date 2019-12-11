@@ -1,0 +1,4 @@
+Bundle-Name: liferay-blogs-adder
+Bundle-SymbolicName: com.liferay.blogs.adder
+Bundle-Version: 1.0.0
+Export-Package: com.liferay.blogs.adder

@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
 import org.osgi.service.component.annotations.Modified;
 import org.osgi.service.component.annotations.Reference;
 
@@ -32,7 +33,9 @@ import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.sites.kernel.util.Sites;
 
-@Component(configurationPid = "com.liferay.docs.content.adder.JournalArticleAdderConfiguration")
+@Component(
+		configurationPid = "com.liferay.docs.content.adder.JournalArticleAdderConfiguration",
+		configurationPolicy = ConfigurationPolicy.REQUIRE)
 public class JournalArticleAdder {
 
 	@Modified
@@ -64,6 +67,8 @@ public class JournalArticleAdder {
 		long userId = adminUsers.get(0).getUserId();
 
 		ServiceContext serviceContext = new ServiceContext();
+		serviceContext.setAddGuestPermissions(true);
+		serviceContext.setAddGroupPermissions(true);
 
 		List<Long> siteGroupIds = _getSiteGroupIds(companyId);
 

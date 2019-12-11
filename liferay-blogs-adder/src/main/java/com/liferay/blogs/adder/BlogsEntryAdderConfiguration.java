@@ -1,16 +1,16 @@
-package com.liferay.docs.content.adder;
+package com.liferay.blogs.adder;
 
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 
 import aQute.bnd.annotation.metatype.Meta;
 
-@ExtendedObjectClassDefinition(category = "web-content")
+@ExtendedObjectClassDefinition(category = "blogs")
 @Meta.OCD(
-	id = "com.liferay.docs.content.adder.JournalArticleAdderConfiguration",
+	id = "com.liferay.blogs.adder.BlogsEntryAdderConfiguration",
 	localization = "content/Language",
-	name = "Journal Adder Configuration"
+	name = "Blogs Adder Configuration"
 )
-public interface JournalArticleAdderConfiguration {
+public interface BlogsEntryAdderConfiguration {
 	
 	@Meta.AD
 		(name = "title",
