@@ -107,14 +107,17 @@ public class JournalArticleAdder {
 		}
 	}
 
+	// get all the sites, but exclude the global site
 	private List<Long> _getSiteGroupIds(long companyId) {
 
 		List<Group> sites = _groupLocalService.getGroups(companyId, GroupConstants.ANY_PARENT_GROUP_ID, true);
 		List<Long> siteGroupIds = new ArrayList<Long>();
 
 		for (Group group : sites) {
-			long groupId = group.getGroupId();
-			siteGroupIds.add(groupId);
+			if (!group.getFriendlyURL().equals(GroupConstants.GLOBAL_FRIENDLY_URL)) {
+				long groupId = group.getGroupId();
+				siteGroupIds.add(groupId);
+			}
 		}
 
 		return siteGroupIds;
