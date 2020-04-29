@@ -13,6 +13,8 @@ At time of writing, branch management works like this:
 
 `7.2`: The 7.2 branch contains code that runs on Liferay CE/DXP 7.2. No promises, but if it doesn't work as advertised, I'd be interested in hearing from you.
 
+`7.3`: The 7.3 branch contains code that runs on Liferay CE/DXP 7.2. No promises, but if it doesn't work as advertised, I'd be interested in hearing from you.
+
 To build for running on master, this module relies on `mavenLocal()` as a repository for satisfying build dependencies, pointed at a local maven repository where your Liferay artifacts from master can be installed (using `gw install` in the module root (e.g., `liferay-portal/modules/apps/journal`) works for me). 
 
 ### On the master branch, I use local dependencies from liferay-portal master
