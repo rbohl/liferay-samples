@@ -4,6 +4,8 @@ These are modules and scripts that I use to explore Liferay's APIs and framework
 
 - [Liferay Content Adder](#liferay-content-adder)
 - [Liferay Blogs Adder](#liferay-blogs-adder)
+- [Groovy Scripts](#groovy-scripts)
+    - [Search Query Script](#searchQuerygroovy)
 
 ## Branches
 
@@ -116,3 +118,12 @@ To make everything simple, these decisions are hard-coded into the Liferay Conte
 4.  The blogs are added to all sites in the system except the global site, so that if you've defined a Lunar Resort site or some other site for demonstration, it will be populated with the blog entries as well. 
 5.  The default site locale is always used for localization.
 
+## Groovy Scripts
+
+Contains scripts that can be run from the Liferay Script Console in 
+
+> Control Panel &rarr; Configuration &rarr; Server Administration (_Script_ tab)
+
+### searchQuery.groovy
+
+Execute a full text search query on Journal Folders  that are "root" folders (these have a Folder ID of `0`).
