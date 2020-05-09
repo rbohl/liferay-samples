@@ -1,5 +1,6 @@
-// Create a Web Content Folder titled "Home" before running this script
-// Change the String keywords="Home" declaration to search for another term
+String userKeywords="sale";
+// Create a Web Content Folder titled "Homes for Sale" before running this script
+// Change the userKeywords above to search for another term
 
 
 import com.liferay.portal.kernel.model.*
@@ -58,8 +59,8 @@ Group guestGroup = GroupLocalServiceUtil.getGroup(companyId,
 guestGroupId=guestGroup.getGroupId()
 long[] groupIds = [guestGroupId]
 
-// set the search keywords for the queries to handle
-String keywords="Home"
+// set the search keywords for the match query to handle
+String keywords="Homes";
 
 // We want to match our keywords to the localized title of the web content folder
 MatchQuery titleQuery = queries.match("title_en_US", keywords);
@@ -95,7 +96,7 @@ searchRequestBuilder.includeResponseString(true);
 searchRequestBuilder.withSearchContext(
     { searchContext -> searchContext.setCompanyId(companyId);
         searchContext.setGroupIds(groupIds);
-//        searchContext.setKeywords(keywords); 
+        searchContext.setKeywords(userKeywords); 
 } );
 
 SearchRequest searchRequest = searchRequestBuilder.query(booleanQuery).build();
