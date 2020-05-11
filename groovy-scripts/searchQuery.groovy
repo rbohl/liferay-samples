@@ -59,11 +59,8 @@ Group guestGroup = GroupLocalServiceUtil.getGroup(companyId,
 guestGroupId=guestGroup.getGroupId()
 long[] groupIds = [guestGroupId]
 
-// set the search keywords for the match query to handle
-String keywords="Homes";
-
 // We want to match our keywords to the localized title of the web content folder
-MatchQuery titleQuery = queries.match("title_en_US", keywords);
+MatchQuery titleQuery = queries.match("title_en_US", "Home");
 
 // This TermsQuery acts as a filter, making sure we only return Web Content
 // Folders with the ID 0, which is the DEFAULT_PARENT_FOLDER_ID in
@@ -81,7 +78,7 @@ booleanQuery.addMustQueryClauses(folderQuery, titleQuery);
 // Build and execute a Search Request
 SearchRequestBuilder searchRequestBuilder = searchRequestBuilderFactory.builder();
 
-// necessary if the keywords might be blank
+// necessary if not passing keywords into the search context
 searchRequestBuilder.emptySearchEnabled(true);
 
 // not really necessary but i wanted to try it out
@@ -107,19 +104,20 @@ SearchResponse searchResponse = searcher.search(searchRequest);
 // This is just some proof, so we can see what we got in our search response.
 hitsCount = searchResponse.getTotalHits()
 responseString = searchResponse.getResponseString()
-searchHitsObjects = searchResponse.getSearchHits()
+searchHitsObject = searchResponse.getSearchHits()
 
 // loop through the hits, get each one's document, then do something, like
 // print the title and the viewCount?
-searchHits = searchHitsObjects.getSearchHits()
+searchHits = searchHitsObject.getSearchHits();
 
-out.println("Searching for " + keywords + " returned " + hitsCount + " Hits")
+out.println("Searching for " + userKeywords + " returned " + hitsCount + " hits")
 
 for (SearchHit hit : searchHits ) {
+    hitId = hit.getId()
+    hitScore = hit.getScore()
     doc = hit.getDocument()
-    docId = hit.getId()
-    docScore = hit.getScore()
-    message = "Document " + docId + " had a score of " + docScore
+    docViewCount = doc.getString("viewCount")
+    message = "Document " + hitId + " had a score of " + hitScore + " and a view count of " + docViewCount
     out.println(
 """
                 <div style="background-color:gray; text-align: left">
