@@ -54,7 +54,7 @@ public class JournalArticleAdder {
 
 		if (titles.length == 0 | titles.length != contents.length | titles.length != descriptions.length) {
 			_log.error(
-					"Make sure there are titles in the confiugration, and that the number of titles, contents, and descriptions are equal.");
+					"Make sure there are titles in the configuration, and that the number of titles, contents, and descriptions are equal.");
 			return;
 		}
 

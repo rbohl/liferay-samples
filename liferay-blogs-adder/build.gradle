@@ -14,7 +14,7 @@ buildscript {
 apply plugin: "com.liferay.plugin"
 
 dependencies {
-    compileOnly group: "com.liferay.portal", name: "release.portal.api", version: "7.3.6-ga7"
+    compileOnly group: "com.liferay.portal", name: "release.portal.api", version: "7.4.3.4-ga4"
 }
 
 repositories {
