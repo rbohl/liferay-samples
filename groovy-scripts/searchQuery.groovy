@@ -1,32 +1,28 @@
-String userKeywords="sale";
-// Create a Web Content Folder titled "Homes for Sale" before running this script
+String userKeywords="able";
+// Searches entries of an object definition named Foo, in a field named Foo Text, to match the keywords
+// Searches root content and folders (folderId: 0) of web content and documents and media in the localized title field for the keywords
 // Change the userKeywords above to search for another term
 
 
+import com.liferay.object.model.*
 import com.liferay.portal.kernel.model.*
+import com.liferay.portal.kernel.module.util.SystemBundleUtil
 import com.liferay.portal.kernel.service.*
-import com.liferay.portal.kernel.util.*
 import com.liferay.portal.kernel.search.SearchContext
+import com.liferay.portal.kernel.util.*
 import com.liferay.portal.search.hits.SearchHit
-import com.liferay.portal.search.query.TermsQuery
-import com.liferay.portal.search.query.MatchQuery
-import com.liferay.portal.search.query.BooleanQuery
-import com.liferay.portal.search.query.Queries
+import com.liferay.portal.search.query.*
 import com.liferay.portal.search.searcher.Searcher
 import com.liferay.portal.search.searcher.SearchResponse
 import com.liferay.portal.search.searcher.SearchRequest
 import com.liferay.portal.search.searcher.SearchRequestBuilderFactory
 import com.liferay.portal.search.searcher.SearchRequestBuilder
 
-import com.liferay.portal.scripting.groovy.internal.GroovyExecutor
-
-import org.osgi.framework.Bundle
-import org.osgi.framework.FrameworkUtil
+import org.osgi.framework.BundleContext
 import org.osgi.util.tracker.ServiceTracker
 
-// Since a com.liferay.portal.scripting.groovy.internal.GroovyExecutor instance
-// executes the script, the instance’s bundle is used to track the service.
-Bundle bundle = FrameworkUtil.getBundle(GroovyExecutor.class);
+// Get the system bundle context
+BundleContext bundleContext = SystemBundleUtil.getBundleContext();
 
 // Set up Service trackers for the Searcher, SearchRequestBuilderFactory, and
 // Queries services
@@ -36,19 +32,19 @@ ServiceTracker<Queries, Queries> queriesST;
 
 // Get a Searcher service reference and open the service tracker, then
 // instantiate an Object with the service
-searcherST = new ServiceTracker(bundle.getBundleContext(), Searcher.class, null);
+searcherST = new ServiceTracker(bundleContext, Searcher.class, null);
 searcherST.open();
 Searcher searcher = searcherST.waitForService(500);
 
 // Get a SearchRequestBuilderFactory service reference and open the service
 // tracker, then instantiate an Object with the service
-searchRequestBuilderFactoryST = new ServiceTracker(bundle.getBundleContext(), SearchRequestBuilderFactory.class, null);
+searchRequestBuilderFactoryST = new ServiceTracker(bundleContext, SearchRequestBuilderFactory.class, null);
 searchRequestBuilderFactoryST.open();
 SearchRequestBuilderFactory searchRequestBuilderFactory = searchRequestBuilderFactoryST.waitForService(500);
 
 // Get a Queries service reference and open the service tracker, then
 // instantiate an Object with the service
-queriesST = new ServiceTracker(bundle.getBundleContext(), Queries.class, null);
+queriesST = new ServiceTracker(bundleContext, Queries.class, null);
 queriesST.open();
 Queries queries = queriesST.waitForService(500);
 
@@ -59,8 +55,25 @@ Group guestGroup = GroupLocalServiceUtil.getGroup(companyId,
 guestGroupId=guestGroup.getGroupId()
 long[] groupIds = [guestGroupId]
 
-// We want to match our keywords to the localized title of the web content folder
-MatchQuery titleQuery = queries.match("title_en_US", "Home");
+BooleanQuery parentBooleanQuery = queries.booleanQuery();
+
+// Object with this ddmFieldArray:
+//[{fieldName=fooText, value_en_US=Able Text, valueFieldName=value_en_US}, {fieldName=fooText, value_keyword_lowercase=Able Text, valueFieldName=value_keyword_lowercase}]
+
+// MatchQuery for the field name and another to match the field value to the user's keywords
+MatchQuery objectFieldNameQuery = queries.match("nestedFieldArray.fieldName", "fooText");
+
+MatchQuery objectFieldValueQuery = queries.match("nestedFieldArray.value_en_US", userKeywords);
+
+// Add the queries as must clauses to a boolean query
+BooleanQuery booleanObjectQuery = queries.booleanQuery();
+booleanObjectQuery.addMustQueryClauses(objectFieldNameQuery, objectFieldValueQuery);
+
+// Add the boolean query to a nested Query with the path nestedFieldArray
+NestedQuery nestedQuery = queries.nested("nestedFieldArray", booleanObjectQuery);
+
+// Match the user's keywords to the localized title of the web content folder
+MatchQuery titleQuery = queries.match("localized_title_en_US", userKeywords);
 
 // This TermsQuery acts as a filter, making sure we only return Web Content
 // Folders with the ID 0, which is the DEFAULT_PARENT_FOLDER_ID in
@@ -75,11 +88,14 @@ folderQuery.addValues("0");
 BooleanQuery booleanQuery = queries.booleanQuery();
 booleanQuery.addMustQueryClauses(folderQuery, titleQuery);
 
+// Add the two boolean queries as should clauses, so that if we match either one the content is returned
+parentBooleanQuery.addShouldQueryClauses(booleanQuery, nestedQuery);
+
 // Build and execute a Search Request
 SearchRequestBuilder searchRequestBuilder = searchRequestBuilderFactory.builder();
 
 // necessary if not passing keywords into the search context
-searchRequestBuilder.emptySearchEnabled(true);
+// searchRequestBuilder.emptySearchEnabled(true);
 
 // not really necessary but i wanted to try it out
 searchRequestBuilder.includeResponseString(true);
@@ -96,7 +112,7 @@ searchRequestBuilder.withSearchContext(
         searchContext.setKeywords(userKeywords); 
 } );
 
-SearchRequest searchRequest = searchRequestBuilder.query(booleanQuery).build();
+SearchRequest searchRequest = searchRequestBuilder.query(parentBooleanQuery).build();
 
 // The searcher.search call instantiates a SearchResponse
 SearchResponse searchResponse = searcher.search(searchRequest);
