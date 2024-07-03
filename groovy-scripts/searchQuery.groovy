@@ -1,5 +1,6 @@
 String userKeywords="able";
-// Searches entries of an object definition named Foo, in a field named Foo Text, to match the keywords
+// Searches object entries with a field named Foo Text to match the keywords
+// Searches DDM structure field to match the keywords: you'll need to update the field name as it's not detemrinistic for DDM
 // Searches root content and folders (folderId: 0) of web content and documents and media in the localized title field for the keywords
 // Change the userKeywords above to search for another term
 
@@ -55,9 +56,25 @@ Group guestGroup = GroupLocalServiceUtil.getGroup(companyId,
 guestGroupId=guestGroup.getGroupId()
 long[] groupIds = [guestGroupId]
 
+//Wrap all the queries in a parent boolean query so they can be made "should" clauses. Only one of the child queries needs to match in order to return results.
 BooleanQuery parentBooleanQuery = queries.booleanQuery();
 
-// Object with this ddmFieldArray:
+// Match a DDM Text Field with this ddmFieldArray:
+// {ddmFieldName=ddm__keyword__35174__Text25689566_en_US, ddmFieldValueKeyword_en_US=Able text in the structure, ddmFieldValueKeyword_en_US_String_sortable=able text in the structure, ddmValueFieldName=ddmFieldValueKeyword_en_US}
+
+// MatchQuery for the field name and another to match the field value to the user's keywords
+MatchQuery ddmFieldNameQuery = queries.match("ddmFieldArray.ddmFieldName", "ddm__text__35174__Text25689566_en_US");
+
+MatchQuery ddmFieldValueQuery = queries.match("ddmFieldArray.ddmFieldValueText_en_US", userKeywords);
+
+// Add the queries as must clauses to a boolean query
+BooleanQuery booleanDDMQuery = queries.booleanQuery();
+booleanDDMQuery.addMustQueryClauses(ddmFieldNameQuery, ddmFieldValueQuery);
+
+// Add the boolean query to a nested Query with the path nestedFieldArray
+NestedQuery nestedDDMQuery = queries.nested("ddmFieldArray", booleanDDMQuery);
+
+// Match an Object Text Field with this nestedFieldArray:
 //[{fieldName=fooText, value_en_US=Able Text, valueFieldName=value_en_US}, {fieldName=fooText, value_keyword_lowercase=Able Text, valueFieldName=value_keyword_lowercase}]
 
 // MatchQuery for the field name and another to match the field value to the user's keywords
@@ -70,7 +87,7 @@ BooleanQuery booleanObjectQuery = queries.booleanQuery();
 booleanObjectQuery.addMustQueryClauses(objectFieldNameQuery, objectFieldValueQuery);
 
 // Add the boolean query to a nested Query with the path nestedFieldArray
-NestedQuery nestedQuery = queries.nested("nestedFieldArray", booleanObjectQuery);
+NestedQuery nestedObjectQuery = queries.nested("nestedFieldArray", booleanObjectQuery);
 
 // Match the user's keywords to the localized title of the web content folder
 MatchQuery titleQuery = queries.match("localized_title_en_US", userKeywords);
@@ -89,7 +106,7 @@ BooleanQuery booleanQuery = queries.booleanQuery();
 booleanQuery.addMustQueryClauses(folderQuery, titleQuery);
 
 // Add the two boolean queries as should clauses, so that if we match either one the content is returned
-parentBooleanQuery.addShouldQueryClauses(booleanQuery, nestedQuery);
+parentBooleanQuery.addShouldQueryClauses(booleanQuery, nestedObjectQuery, nestedDDMQuery);
 
 // Build and execute a Search Request
 SearchRequestBuilder searchRequestBuilder = searchRequestBuilderFactory.builder();
